@@ -12,15 +12,6 @@ fn main() {
                     loop {
                         let line = &line[i..];
                         match line {
-                            _ if line.starts_with("one") => return 1,
-                            _ if line.starts_with("two") => return 2,
-                            _ if line.starts_with("three") => return 3,
-                            _ if line.starts_with("four") => return 4,
-                            _ if line.starts_with("five") => return 5,
-                            _ if line.starts_with("six") => return 6,
-                            _ if line.starts_with("seven") => return 7,
-                            _ if line.starts_with("eight") => return 8,
-                            _ if line.starts_with("nine") => return 9,
                             _ if line.starts_with('1') => return 1,
                             _ if line.starts_with('2') => return 2,
                             _ if line.starts_with('3') => return 3,
@@ -30,6 +21,15 @@ fn main() {
                             _ if line.starts_with('7') => return 7,
                             _ if line.starts_with('8') => return 8,
                             _ if line.starts_with('9') => return 9,
+                            _ if line.starts_with("one") => return 1,
+                            _ if line.starts_with("two") => return 2,
+                            _ if line.starts_with("six") => return 6,
+                            _ if line.starts_with("four") => return 4,
+                            _ if line.starts_with("five") => return 5,
+                            _ if line.starts_with("nine") => return 9,
+                            _ if line.starts_with("three") => return 3,
+                            _ if line.starts_with("seven") => return 7,
+                            _ if line.starts_with("eight") => return 8,
                             _ => i += 1,
                         };
                     }
@@ -39,15 +39,6 @@ fn main() {
                     loop {
                         let line = &line[..(line.len() - i)];
                         match line {
-                            _ if line.ends_with("one") => return 1,
-                            _ if line.ends_with("two") => return 2,
-                            _ if line.ends_with("three") => return 3,
-                            _ if line.ends_with("four") => return 4,
-                            _ if line.ends_with("five") => return 5,
-                            _ if line.ends_with("six") => return 6,
-                            _ if line.ends_with("seven") => return 7,
-                            _ if line.ends_with("eight") => return 8,
-                            _ if line.ends_with("nine") => return 9,
                             _ if line.ends_with('1') => return 1,
                             _ if line.ends_with('2') => return 2,
                             _ if line.ends_with('3') => return 3,
@@ -57,6 +48,15 @@ fn main() {
                             _ if line.ends_with('7') => return 7,
                             _ if line.ends_with('8') => return 8,
                             _ if line.ends_with('9') => return 9,
+                            _ if line.ends_with("one") => return 1,
+                            _ if line.ends_with("two") => return 2,
+                            _ if line.ends_with("six") => return 6,
+                            _ if line.ends_with("four") => return 4,
+                            _ if line.ends_with("five") => return 5,
+                            _ if line.ends_with("nine") => return 9,
+                            _ if line.ends_with("three") => return 3,
+                            _ if line.ends_with("seven") => return 7,
+                            _ if line.ends_with("eight") => return 8,
                             _ => i += 1,
                         };
                     }
