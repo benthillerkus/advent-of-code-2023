@@ -4,8 +4,7 @@ const INPUT: &str = include_str!("input.txt");
 
 fn main() {
     let sum = INPUT
-        .lines()
-        .par_bridge()
+        .par_lines()
         .map(|line| {
             let (a, b) = rayon::join(
                 || {
