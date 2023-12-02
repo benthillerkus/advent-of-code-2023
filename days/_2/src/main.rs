@@ -85,7 +85,7 @@ fn game_id(input: &str) -> IResult<&str, u8> {
 
 fn game(input: &str) -> IResult<&str, Game> {
     let (input, id) = game_id(input)?;
-    let (_, rounds) = rounds(input)?;
+    let (input, rounds) = rounds(input)?;
 
     Ok((input, Game { id, rounds }))
 }
