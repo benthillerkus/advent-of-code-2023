@@ -1,4 +1,4 @@
-use std::ops;
+use std::{cmp::max, ops, u16};
 
 use nom::{
     branch::alt,
@@ -19,11 +19,34 @@ struct Game {
     rounds: Vec<Round>,
 }
 
+impl Game {
+    fn min_set_of_cubes(&self) -> Round {
+        if self.rounds.len() == 1 {
+            return *self.rounds.first().unwrap();
+        }
+        self.rounds
+            .iter()
+            .copied()
+            .reduce(|acc, curr| Round {
+                red: max(acc.red, curr.red),
+                green: max(acc.green, curr.green),
+                blue: max(acc.blue, curr.blue),
+            })
+            .unwrap()
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 struct Round {
     red: u8,
     green: u8,
     blue: u8,
+}
+
+impl Round {
+    fn pow(&self) -> u32 {
+        self.red as u32 * self.green as u32 * self.blue as u32
+    }
 }
 
 impl ops::Add for Round {
@@ -76,11 +99,9 @@ fn rounds(input: &str) -> IResult<&str, Vec<Round>> {
 }
 
 fn game_id(input: &str) -> IResult<&str, u8> {
-    let (input, id) = map_res(delimited(tag("Game "), digit1, char(':')), |s: &str| {
+    map_res(delimited(tag("Game "), digit1, char(':')), |s: &str| {
         s.parse::<u8>()
-    })(input)?;
-
-    Ok((input, id))
+    })(input)
 }
 
 fn game(input: &str) -> IResult<&str, Game> {
@@ -91,24 +112,31 @@ fn game(input: &str) -> IResult<&str, Game> {
 }
 
 fn main() {
-    let max_red = 12;
-    let max_green = 13;
-    let max_blue = 14;
-
-    let sum = INPUT
+    let games = INPUT
         .par_lines()
         .map(game)
         .map(Finish::finish)
         .filter_map(Result::ok)
-        .filter_map(|(_, game)| {
+        .map(|(_, game)| game);
+
+    let games2 = games.clone();
+
+    //a
+    let sum = games
+        .filter_map(|game| {
             game.rounds
                 .iter()
-                .all(|round| {
-                    round.red <= max_red && round.green <= max_green && round.blue <= max_blue
-                })
+                .all(|round| round.red <= 12 && round.green <= 13 && round.blue <= 14)
                 .then_some(game.id as u16)
         })
         .sum::<u16>();
+    println!("{sum}");
+
+    // b
+    let sum = games2
+        .map(|game| game.min_set_of_cubes())
+        .map(|round| round.pow())
+        .sum::<u32>();
 
     println!("{sum}");
 }
