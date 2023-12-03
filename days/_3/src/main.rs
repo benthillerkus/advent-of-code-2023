@@ -17,7 +17,7 @@ enum Token {
 impl From<u8> for Token {
     fn from(value: u8) -> Self {
         match value {
-            b'.' => Self::Junk,
+            b'.' | b'\n' => Self::Junk,
             _ if value.is_ascii_digit() => Self::Digit,
             _ => Self::Symbol,
         }
