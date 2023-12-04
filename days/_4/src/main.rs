@@ -1,10 +1,9 @@
-use std::collections::{BTreeSet, HashSet};
-
 use rayon::prelude::*;
+use std::collections::BTreeSet;
 
 const INPUT: &str = include_str!("input.txt");
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 struct Game {
     id: u8,
     winners: BTreeSet<u8>,
@@ -21,8 +20,12 @@ impl From<&str> for Game {
 }
 
 impl Game {
+    fn matches(&self) -> u8 {
+        self.winners.intersection(&self.mine).count() as u8
+    }
+
     fn score(&self) -> u16 {
-        let matches = self.winners.intersection(&self.mine).count();
+        let matches = self.matches();
         if matches == 0 {
             0
         } else {
@@ -33,13 +36,12 @@ impl Game {
 
 mod parse {
     use nom::{
-        branch::alt,
         bytes::complete::tag,
         character::complete::{char, digit1, space0, space1},
-        combinator::{map_res, opt},
-        multi::{fold_many1, separated_list0, separated_list1},
-        sequence::{delimited, pair, preceded, separated_pair, tuple},
-        Finish, IResult,
+        combinator::map_res,
+        multi::separated_list1,
+        sequence::{delimited, pair, tuple},
+        IResult,
     };
 
     use crate::Game;
@@ -61,7 +63,7 @@ mod parse {
     }
 }
 
-fn main() {
+fn a() {
     let sum: u16 = INPUT
         .par_lines()
         .map(Game::from)
@@ -69,4 +71,31 @@ fn main() {
         .sum();
 
     println!("{sum}");
+}
+
+fn b() {
+    let matches: Vec<_> = INPUT
+        .par_lines()
+        .map(Game::from)
+        .map(|game| game.matches())
+        .collect();
+
+    let mut cards = Vec::from_iter(std::iter::repeat(1).take(matches.len()));
+
+    for index in 0..matches.len() {
+        let matches = matches[index];
+        let instances = cards[index];
+        for count in cards.iter_mut().skip(index + 1).take(matches as usize) {
+            *count += instances;
+        }
+    }
+
+    let sum: u32 = cards.iter().sum();
+
+    println!("{sum}");
+}
+
+fn main() {
+    a();
+    b();
 }
