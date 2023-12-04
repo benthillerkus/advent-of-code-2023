@@ -22,6 +22,14 @@ name = "_3"
 version = "0.1.0"
 
 [[package]]
+name = "_4"
+version = "0.1.0"
+dependencies = [
+ "nom",
+ "rayon",
+]
+
+[[package]]
 name = "aoc23"
 version = "0.1.0"
 
