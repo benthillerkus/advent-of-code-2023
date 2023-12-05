@@ -49,18 +49,40 @@ impl Layer {
 }
 
 #[derive(Debug)]
-struct Game {
+struct GameA {
     seeds: Vec<i64>,
     layers: Vec<Layer>,
 }
 
-impl FromStr for Game {
+impl FromStr for GameA {
     type Err = nom::error::Error<String>;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use nom::error::Error;
-        use parse::game;
-        match game(s).finish() {
+        use parse::game_a;
+        match game_a(s).finish() {
+            Ok((_remaining, game)) => Ok(game),
+            Err(Error { input, code }) => Err(Error {
+                input: input.to_string(),
+                code,
+            }),
+        }
+    }
+}
+
+#[derive(Debug)]
+struct GameB {
+    seeds: Vec<Range<i64>>,
+    layers: Vec<Layer>,
+}
+
+impl FromStr for GameB {
+    type Err = nom::error::Error<String>;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use nom::error::Error;
+        use parse::game_b;
+        match game_b(s).finish() {
             Ok((_remaining, game)) => Ok(game),
             Err(Error { input, code }) => Err(Error {
                 input: input.to_string(),
@@ -71,20 +93,38 @@ impl FromStr for Game {
 }
 
 mod parse {
+    use std::ops::Range;
+
     use nom::{
         bytes::complete::{tag, take_until},
-        character::complete::{char, digit1, multispace1, space0, space1},
+        character::complete::{char, digit1, multispace1},
         combinator::{map, map_res},
         multi::{many1, separated_list1},
-        sequence::{pair, preceded, terminated},
+        sequence::{pair, preceded, separated_pair},
         IResult,
     };
 
-    use crate::{Game, Layer, Mapping};
+    use crate::{GameA, GameB, Layer, Mapping};
 
-    fn seeds(input: &str) -> IResult<&str, Vec<i64>> {
+    fn seeds_a(input: &str) -> IResult<&str, Vec<i64>> {
         let (input, _) = tag("seeds: ")(input)?;
         separated_list1(char(' '), map(digit1, |s| str::parse(s).unwrap()))(input)
+    }
+
+    fn seeds_b(input: &str) -> IResult<&str, Vec<Range<i64>>> {
+        let (input, _) = tag("seeds: ")(input)?;
+        separated_list1(
+            char(' '),
+            map(
+                separated_pair(digit1, char(' '), digit1),
+                |(start, length)| {
+                    let start = str::parse(start).unwrap();
+                    let length: i64 = str::parse(length).unwrap();
+
+                    start..(start + length)
+                },
+            ),
+        )(input)
     }
 
     fn mapping(input: &str) -> IResult<&str, Mapping> {
@@ -104,16 +144,23 @@ mod parse {
         Ok((input, Layer { mappings }))
     }
 
-    pub fn game(input: &str) -> IResult<&str, Game> {
-        let (input, seeds) = seeds(input)?;
+    pub fn game_a(input: &str) -> IResult<&str, GameA> {
+        let (input, seeds) = seeds_a(input)?;
         let (input, layers) = many1(layer)(input)?;
 
-        Ok((input, Game { seeds, layers }))
+        Ok((input, GameA { seeds, layers }))
+    }
+
+    pub fn game_b(input: &str) -> IResult<&str, GameB> {
+        let (input, seeds) = seeds_b(input)?;
+        let (input, layers) = many1(layer)(input)?;
+
+        Ok((input, GameB { seeds, layers }))
     }
 }
 
 fn a() {
-    let game = Game::from_str(INPUT).unwrap();
+    let game = GameA::from_str(INPUT).unwrap();
 
     let location = game
         .seeds
@@ -129,6 +176,26 @@ fn a() {
     println!("{location}")
 }
 
+fn b() {
+    let game = GameB::from_str(INPUT).unwrap();
+
+    let location = game
+        .seeds
+        .par_iter()
+        .flat_map(|seeds| {
+            seeds.to_owned().par_bridge().map(|seed| {
+                game.layers
+                    .iter()
+                    .fold(seed, |value, layer| layer.map(value))
+            })
+        })
+        .min()
+        .unwrap();
+
+    println!("{location}")
+}
+
 fn main() {
     a();
+    b();
 }
