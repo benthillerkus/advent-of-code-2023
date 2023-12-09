@@ -5,6 +5,7 @@ const INPUT: &str = include_str!("input.txt");
 
 #[derive(Debug)]
 struct Game {
+    #[allow(dead_code)]
     id: u8,
     winners: BTreeSet<u8>,
     mine: BTreeSet<u8>,

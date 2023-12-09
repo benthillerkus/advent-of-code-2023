@@ -5,7 +5,6 @@ use std::{
 };
 
 use nom::Finish;
-use num::Integer;
 use parse::row;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
