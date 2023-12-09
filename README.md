@@ -10,3 +10,4 @@ I'll try to complete these if I have some spare time in december...
 |  [4](days/_4/src/main.rs)  |         [Scratchcards](https://adventofcode.com/2023/day/4)          |   2   |
 |  [5](days/_5/src/main.rs)  |[If You Give A Seed A Fertilizer](https://adventofcode.com/2023/day/5)|   2   |
 |  [6](days/_6/src/main.rs)  |          [Wait For It](https://adventofcode.com/2023/day/6)          |   2   |
+|  [7](days/_7/src/main.rs)  |          [?????](https://adventofcode.com/2023/day/7)          |   0   |

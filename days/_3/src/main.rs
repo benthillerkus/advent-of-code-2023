@@ -1,7 +1,4 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    sync::OnceLock,
-};
+use std::sync::OnceLock;
 
 const INPUT: &[u8] = include_bytes!("input.txt");
 
