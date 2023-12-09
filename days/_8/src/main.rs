@@ -1,7 +1,13 @@
-use std::{collections::HashMap, error::Error, fmt::Display};
+use std::{
+    collections::HashMap,
+    error::Error,
+    fmt::{Display, Write},
+};
 
 use nom::Finish;
+use num::Integer;
 use parse::row;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 const INPUT: &str = include_str!("input.txt");
 
@@ -48,7 +54,15 @@ impl TryFrom<char> for Instruction {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
-struct Node([char; 3]);
+struct Node(char, char, char);
+
+impl Display for Node {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_char(self.0)?;
+        f.write_char(self.1)?;
+        f.write_char(self.2)
+    }
+}
 
 #[derive(Debug, PartialEq, Eq)]
 struct Crossroad(Node, Node);
@@ -76,7 +90,7 @@ mod parse {
 
     pub fn node(input: &str) -> IResult<&str, Node> {
         map(tuple((anychar, anychar, anychar)), |chars| {
-            Node([chars.0, chars.1, chars.2])
+            Node(chars.0, chars.1, chars.2)
         })(input)
     }
 
@@ -119,7 +133,31 @@ impl Map {
                 return steps + 1;
             }
         }
-        usize::MAX
+        unreachable!()
+    }
+
+    fn parallel_steps(&self) -> usize {
+        let starters: Vec<_> = self
+            .nodes
+            .keys()
+            .copied()
+            .filter(|&node| node.2 == 'A')
+            .collect();
+
+        starters
+            .par_iter()
+            .map(|&current| {
+                let mut current = current;
+                for (steps, instruction) in self.instructions.iter().cycle().enumerate() {
+                    let crossroad = &self.nodes[&current];
+                    current = crossroad.turn(instruction);
+                    if current.2 == 'Z' {
+                        return steps + 1;
+                    }
+                }
+                unreachable!()
+            })
+            .reduce(|| 1, num::integer::lcm)
     }
 }
 
@@ -165,13 +203,45 @@ impl TryFrom<&str> for Map {
     }
 }
 
-fn a(input: &str) {
+fn a(input: &str) -> usize {
     let map: Map = input.try_into().expect("the input to be parseable");
-    let steps = map.steps(&Node(['A', 'A', 'A']), &Node(['Z', 'Z', 'Z']));
 
-    println!("{steps}")
+    map.steps(&Node('A', 'A', 'A'), &Node('Z', 'Z', 'Z'))
+}
+
+fn b(input: &str) -> usize {
+    let map: Map = input.try_into().expect("the input to be parseable");
+
+    map.parallel_steps()
 }
 
 fn main() {
-    a(INPUT)
+    let steps = a(INPUT);
+    println!("{steps}");
+
+    let steps = b(INPUT);
+    println!("{steps}")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parallel1() {
+        let input = r#"LR
+
+11A = (11B, XXX)
+11B = (XXX, 11Z)
+11Z = (11B, XXX)
+22A = (22B, XXX)
+22B = (22C, 22C)
+22C = (22Z, 22Z)
+22Z = (22B, 22B)
+XXX = (XXX, XXX)"#;
+
+        let steps = b(input);
+
+        assert_eq!(steps, 6);
+    }
 }
