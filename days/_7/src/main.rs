@@ -186,7 +186,7 @@ fn a(input: &str) -> usize {
     hands
         .par_iter()
         .enumerate()
-        .map(|(rank, hand)| rank * hand.bid as usize)
+        .map(|(rank, hand)| (rank + 1) * hand.bid as usize)
         .sum()
 }
 
