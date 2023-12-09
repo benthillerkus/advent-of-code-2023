@@ -55,7 +55,41 @@ fn a(input: &str) -> i32 {
         .sum()
 }
 
+fn b(input: &str) -> i32 {
+    input
+        .par_lines()
+        .map(|line| {
+            history(line)
+                .finish()
+                .map(|(_, history)| history)
+                .expect("should not be empty 22")
+        })
+        .map(|history| {
+            let mut derivatives = vec![history];
+
+            while derivatives.last().unwrap().iter().any(|&i| i != 0) {
+                let derivative = derivatives
+                    .last()
+                    .expect("should not be empty 30")
+                    .windows(2)
+                    .map(|l| l.last().expect("should not be empty 32") - l.first().unwrap())
+                    .collect::<Vec<_>>();
+
+                derivatives.push(derivative)
+            }
+
+            derivatives
+                .iter()
+                .rev()
+                .map(|derivative| derivative.first().expect("should not be empty 41"))
+                .fold(0, |acc, curr| curr - acc)
+        })
+        .sum()
+}
+
 fn main() {
     let sum = a(INPUT);
+    println!("{sum}");
+    let sum = b(INPUT);
     println!("{sum}");
 }
