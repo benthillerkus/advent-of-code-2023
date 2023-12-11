@@ -1,7 +1,4 @@
-use rayon::{
-    iter::{IntoParallelRefIterator, ParallelIterator},
-    join,
-};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 const INPUT: &str = include_str!("input.txt");
 

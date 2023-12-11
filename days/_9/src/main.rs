@@ -1,8 +1,7 @@
 use nom::{
-    branch::alt,
     character::complete::{char, digit1},
-    combinator::{map, map_res, opt, recognize},
-    multi::{many1, separated_list1},
+    combinator::{map_res, opt, recognize},
+    multi::separated_list1,
     sequence::preceded,
     Finish, IResult,
 };
